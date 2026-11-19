@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RenalAtlas | Clinical Nephrology Guide — Presented by Jade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f8fb;
+            color: #0f172a;
+            /* Sterile clinical medical grid background */
+            background-image:
+                linear-gradient(to right, rgba(14, 116, 144, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(14, 116, 144, 0.05) 1px, transparent 1px),
+                linear-gradient(to right, rgba(14, 116, 144, 0.025) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(14, 116, 144, 0.025) 1px, transparent 1px);
+            background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+        }
+
+        .font-mono-med {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Clinical ECG Pulse Line Animation */
+        @keyframes ecgDraw {
+            0% { stroke-dashoffset: 600; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .ecg-line {
+            stroke-dasharray: 600;
+            animation: ecgDraw 4s linear infinite;
+        }
+
+        /* Custom SVG & Flow Animations */
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 4px rgba(225, 29, 72, 0.4)); }
+            50% { filter: drop-shadow(0 0 12px rgba(225, 29, 72, 0.8)); }
+        }
+
+        @keyframes flowWaste {
+            0% { stroke-dashoffset: 240; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes flowBlood {
+            0% { stroke-dashoffset: 300; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .animate-flow-waste {
+            stroke-dasharray: 8 12;
+            animation: flowWaste 3s linear infinite;
+        }
+
+        .animate-flow-blood {
+            stroke-dasharray: 10 10;
+            animation: flowBlood 2.5s linear infinite;
+        }
+
+        .anatomy-part {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .anatomy-part:hover {
+            filter: brightness(1.12) drop-shadow(0 4px 12px rgba(15, 23, 42, 0.25));
+            transform: scale(1.01);
+            transform-origin: center;
+        }
+
+        .anatomy-part.active {
+            stroke: #0f172a;
+            stroke-width: 3px;
+            filter: brightness(1.15) drop-shadow(0 6px 16px rgba(13, 148, 136, 0.4));
+        }
+
+        /* Custom Range Slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #cbd5e1;
+            height: 0.5rem;
+            border-radius: 9999px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px;
+            background-color: #0d9488;
+            height: 1.25rem;
+            width: 1.25rem;
+            border-radius: 9999px;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.15s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-teal-600 selection:text-white">
+
+    <!-- Top Clinical Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-cyan-900/10 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand Logo + Clinical Attribution -->
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-700 via-teal-600 to-rose-600 flex items-center justify-center text-white shadow-md ring-2 ring-cyan-500/20">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21c-4.5 0-7-3.5-7-8 0-3.5 2-7 5-8.5 1.5-.7 3 .5 3 2s-1 2.5-1 4.5 1 3.5 1 5-1.5 2.7-3 2c-3-1.5-5-5-5-8.5"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 7c2.5 1 4 3.5 4 6.5 0 3.5-2.5 6.5-6 6.5"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-lg tracking-tight text-slate-900">Renal<span class="text-cyan-700">Atlas</span></span>
+                        <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-md bg-cyan-50 border border-cyan-200 text-cyan-800 text-[11px] font-semibold tracking-wide" data-i18n="presented_by">
+                            Präsentiert von Jade
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-600">
+                <a href="#anatomy" class="hover:text-cyan-700 transition-colors" data-i18n="nav_anatomy">Anatomie & Nephron</a>
+                <a href="#functions" class="hover:text-cyan-700 transition-colors" data-i18n="nav_functions">Alle 8 Funktionen</a>
+                <a href="#simulator" class="hover:text-cyan-700 transition-colors" data-i18n="nav_simulator">Klinisches Labor</a>
+                <a href="#videos" class="hover:text-cyan-700 transition-colors" data-i18n="nav_videos">Videos</a>
+                <a href="#quiz" class="hover:text-cyan-700 transition-colors" data-i18n="nav_quiz">Medizin-Quiz</a>
+            </nav>
+
+            <!-- Language Toggle Switch -->
+            <div class="flex items-center gap-2 bg-slate-100 p-1 rounded-full border border-slate-200">
+                <button id="btn-de" onclick="setLanguage('de')" class="px-3 py-1 rounded-full text-xs font-bold transition-all bg-cyan-700 text-white shadow-sm">
+                    🇩🇪 DE
+                </button>
+                <button id="btn-en" onclick="setLanguage('en')" class="px-3 py-1 rounded-full text-xs font-bold transition-all text-slate-600 hover:text-slate-900">
+                    🇬🇧 EN
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section with Clinical Medical Telemetry & ECG Aesthetic -->
+    <section class="relative overflow-hidden bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-900 text-white py-16 sm:py-24 border-b border-cyan-800/40">
+        <!-- Clinical Grid Overlay inside Hero -->
+        <div class="absolute inset-0 opacity-25 pointer-events-none"
+             style="background-image: linear-gradient(to right, rgba(34,211,238,0.12) 1px, transparent 1px), linear-gradient(to bottom, rgba(34,211,238,0.12) 1px, transparent 1px); background-size: 40px 40px;">
+        </div>
+
+        <!-- Subtle Medical ECG Waveform Background -->
+        <svg class="absolute bottom-6 right-0 w-full max-w-2xl opacity-20 pointer-events-none" viewBox="0 0 600 100" fill="none">
+            <path class="ecg-line" d="M0 50 L140 50 L155 25 L170 80 L185 10 L200 90 L215 50 L360 50 L375 25 L390 80 L405 10 L420 90 L435 50 L600 50"
+                  stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <!-- Clinical Badge + Presented by Jade Pill -->
+                <div class="flex flex-wrap items-center gap-3 mb-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 text-xs font-mono-med uppercase tracking-wider">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span data-i18n="hero_badge">Klinische Nephrologie & Physiologie</span>
+                    </div>
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold shadow-sm backdrop-blur-sm">
+                        <span class="text-cyan-300">✦</span>
+                        <span data-i18n="presented_by_hero">Präsentiert von Jade</span>
+                    </div>
+                </div>
+
+                <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6" data-i18n="hero_title">
+                    Die Nieren: Das Meisterwerk der inneren Balance
+                </h1>
+                <p class="text-base sm:text-lg text-slate-300 leading-relaxed mb-8" data-i18n="hero_subtitle">
+                    Weit mehr als nur ein Filter: Entdecke alle 8 lebenswichtigen Funktionen der menschlichen Nieren – von der Blutreinigung und Blutdruckkontrolle bis hin zur Hormonproduktion und Zuckerneubildung.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="#functions" class="px-6 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-cyan-500/25" data-i18n="hero_cta_primary">
+                        Alle 8 Funktionen entdecken
+                    </a>
+                    <a href="#anatomy" class="px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/15 transition-all" data-i18n="hero_cta_secondary">
+                        Interaktive Anatomie starten
+                    </a>
+                </div>
+            </div>
+
+            <!-- Key Clinical Telemetry Stats Bar -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-14 pt-10 border-t border-cyan-500/20">
+                <div class="bg-slate-900/70 backdrop-blur-md border border-cyan-500/25 rounded-2xl p-4 sm:p-5">
+                    <div class="text-[11px] font-mono-med uppercase text-cyan-400 mb-1">GFR / RENAL FLOW</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold font-mono-med text-white">120–150 L</div>
+                    <div class="text-xs sm:text-sm text-slate-300 mt-1" data-i18n="stat_1">Gefiltertes Blut pro Tag</div>
+                </div>
+                <div class="bg-slate-900/70 backdrop-blur-md border border-cyan-500/25 rounded-2xl p-4 sm:p-5">
+                    <div class="text-[11px] font-mono-med uppercase text-rose-400 mb-1">NEPHRON UNITS</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold font-mono-med text-white">~2.0 Mio.</div>
+                    <div class="text-xs sm:text-sm text-slate-300 mt-1" data-i18n="stat_2">Nephrone (Filtereinheiten) insgesamt</div>
+                </div>
+                <div class="bg-slate-900/70 backdrop-blur-md border border-cyan-500/25 rounded-2xl p-4 sm:p-5">
+                    <div class="text-[11px] font-mono-med uppercase text-amber-400 mb-1">DIURESIS OUTPUT</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold font-mono-med text-white">1.5 – 2.0 L</div>
+                    <div class="text-xs sm:text-sm text-slate-300 mt-1" data-i18n="stat_3">Ausgeschiedener Urin täglich</div>
+                </div>
+                <div class="bg-slate-900/70 backdrop-blur-md border border-cyan-500/25 rounded-2xl p-4 sm:p-5">
+                    <div class="text-[11px] font-mono-med uppercase text-emerald-400 mb-1">HOMEOSTASIS pH</div>
+                    <div class="text-2xl sm:text-3xl font-extrabold font-mono-med text-white">7.35–7.45</div>
+                    <div class="text-xs sm:text-sm text-slate-300 mt-1" data-i18n="stat_4">Konstant gehaltener Blut-pH-Wert</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Anatomy & Nephron Section -->
+    <section id="anatomy" class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-14">
+            <span class="inline-block px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-mono-med font-bold text-xs uppercase tracking-widest" data-i18n="anat_tag">Struktur & Mikroskopie</span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-3 mb-4" data-i18n="anat_title">Interaktive Nieren-Anatomie & Nephron-Simulator</h2>
+            <p class="text-slate-600 text-sm sm:text-base" data-i18n="anat_desc">
+                Klicke auf die verschiedenen Bereiche der Niere, um ihren Aufbau zu untersuchen, oder steuere den Blutfluss im mikroskopischen Nephron.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            <!-- Card 1: Interactive Macroscopic Kidney SVG -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-sm border border-cyan-900/15 p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg text-slate-900" data-i18n="macro_title">1. Klinischer Querschnitt der Niere</h3>
+                        <span class="text-xs bg-cyan-50 border border-cyan-200 text-cyan-800 font-semibold px-2.5 py-1 rounded-full" data-i18n="click_hint">Bereich anklicken</span>
+                    </div>
+
+                    <!-- Interactive Kidney Cross-Section SVG -->
+                    <div class="relative w-full max-w-md mx-auto my-4 bg-slate-50/90 rounded-2xl p-4 border border-slate-200/80">
+                        <svg viewBox="0 0 400 340" class="w-full h-auto overflow-visible">
+                            <defs>
+                                <linearGradient id="cortexGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#f43f5e"/>
+                                    <stop offset="100%" stop-color="#be123c"/>
+                                </linearGradient>
+                                <linearGradient id="medullaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fb7185"/>
+                                    <stop offset="100%" stop-color="#9f1239"/>
+                                </linearGradient>
+                                <linearGradient id="pelvisGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#fde047"/>
+                                    <stop offset="100%" stop-color="#eab308"/>
+                                </linearGradient>
+                            </defs>
+
+                            <!-- Renal Artery (Red) -->
+                            <path id="part-artery" class="anatomy-part" onclick="selectAnatomy('artery')"
+                                  d="M 40 135 L 155 135 C 170 135 175 120 185 120"
+                                  fill="none" stroke="#dc2626" stroke-width="14" stroke-linecap="round"/>
+
+                            <!-- Renal Vein (Blue) -->
+                            <path id="part-vein" class="anatomy-part" onclick="selectAnatomy('vein')"
+                                  d="M 40 165 L 155 165 C 170 165 175 180 185 180"
+                                  fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/>
+
+                            <!-- Ureter (Yellow tube going down) -->
+                            <path id="part-ureter" class="anatomy-part" onclick="selectAnatomy('ureter')"
+                                  d="M 165 195 Q 130 230 130 320"
+                                  fill="none" stroke="#eab308" stroke-width="13" stroke-linecap="round"/>
+
+                            <!-- Outer Renal Cortex (Bean Shape) -->
+                            <path id="part-cortex" class="anatomy-part active" onclick="selectAnatomy('cortex')"
+                                  d="M 215 35 C 310 35 355 95 355 170 C 355 245 310 305 215 305 C 165 305 145 265 155 220 C 162 195 162 145 155 120 C 145 75 165 35 215 35 Z"
+                                  fill="url(#cortexGrad)" stroke="#881337" stroke-width="3"/>
+
+                            <!-- Inner Medulla Region -->
+                            <path id="part-medulla" class="anatomy-part" onclick="selectAnatomy('medulla')"
+                                  d="M 218 65 C 285 65 320 110 320 170 C 320 230 285 275 218 275 C 185 275 175 240 180 205 L 180 135 C 175 100 185 65 218 65 Z"
+                                  fill="#fda4af" opacity="0.55"/>
+
+                            <!-- Renal Pyramids inside Medulla -->
+                            <g class="anatomy-part" onclick="selectAnatomy('medulla')">
+                                <polygon points="225,75 255,95 215,125" fill="url(#medullaGrad)"/>
+                                <polygon points="275,105 295,135 235,145" fill="url(#medullaGrad)"/>
+                                <polygon points="295,155 295,185 240,170" fill="url(#medullaGrad)"/>
+                                <polygon points="275,235 295,205 235,195" fill="url(#medullaGrad)"/>
+                                <polygon points="225,265 255,245 215,215" fill="url(#medullaGrad)"/>
+                            </g>
+
+                            <!-- Renal Pelvis (Funnel) -->
+                            <path id="part-pelvis" class="anatomy-part" onclick="selectAnatomy('pelvis')"
+                                  d="M 162 195 C 185 205 215 220 225 210 C 232 202 215 188 238 175 C 245 170 245 165 238 160 C 215 148 232 135 225 126 C 215 118 185 135 162 145 Z"
+                                  fill="url(#pelvisGrad)" stroke="#ca8a04" stroke-width="2"/>
+
+                            <!-- Subtle Labels on SVG -->
+                            <text x="278" y="62" font-size="11" font-weight="700" fill="#881337" pointer-events="none">Cortex</text>
+                            <text x="255" y="174" font-size="11" font-weight="700" fill="#ffffff" pointer-events="none">Medulla</text>
+                            <text x="175" y="174" font-size="10" font-weight="800" fill="#713f12" pointer-events="none">Pelvis</text>
+                            <text x="42" y="122" font-size="10" font-weight="700" fill="#dc2626" pointer-events="none">Arteria</text>
+                            <text x="42" y="185" font-size="10" font-weight="700" fill="#2563eb" pointer-events="none">Vena</text>
+                            <text x="72" y="295" font-size="10" font-weight="700" fill="#a16207" pointer-events="none">Ureter</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Dynamic Info Box for Selected Anatomy Part -->
+                <div id="anatomy-info-box" class="bg-cyan-50/70 border border-cyan-200 rounded-2xl p-4 sm:p-5 transition-all">
+                    <div class="flex items-center gap-2 mb-1.5">
+                        <span id="anat-badge" class="w-3 h-3 rounded-full bg-rose-600"></span>
+                        <h4 id="anat-part-title" class="font-bold text-slate-900 text-base">Nierenrinde (Cortex renalis)</h4>
+                    </div>
+                    <p id="anat-part-desc" class="text-sm text-slate-700 leading-relaxed">
+                        Die äußere Schicht der Niere. Hier befinden sich die meisten Nierenkörperchen (Glomeruli), in denen das Blut zuerst gefiltert wird und der Primärharn entsteht.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Card 2: Interactive Nephron Filtration Simulator -->
+            <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-sm border border-cyan-900/15 p-6 sm:p-8 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg text-slate-900" data-i18n="nephron_title">2. Das Nephron: So entsteht Urin</h3>
+                        <button id="toggle-flow-btn" onclick="toggleNephronFlow()" class="text-xs bg-slate-900 hover:bg-slate-800 text-white font-mono-med font-semibold px-3 py-1.5 rounded-full transition-colors">
+                            ⏸ Pause
+                        </button>
+                    </div>
+
+                    <!-- Interactive Nephron Flow SVG -->
+                    <div class="relative w-full max-w-md mx-auto my-4 bg-slate-900 rounded-2xl p-4 overflow-hidden">
+                        <svg viewBox="0 0 400 280" class="w-full h-auto">
+                            <!-- Incoming Blood Vessel (Afferent Arteriole) -->
+                            <path d="M 15 65 L 85 65" stroke="#ef4444" stroke-width="10" stroke-linecap="round"/>
+                            <path id="flow-blood-in" d="M 15 65 L 85 65" stroke="#fca5a5" stroke-width="4" stroke-linecap="round" class="animate-flow-blood"/>
+
+                            <!-- Glomerulus Capillary Knot -->
+                            <circle cx="110" cy="75" r="24" fill="#dc2626" opacity="0.85"/>
+                            <path d="M 95 70 Q 110 55 125 70 Q 110 90 95 75 Q 115 65 120 82" fill="none" stroke="#fecaca" stroke-width="3"/>
+
+                            <!-- Outgoing Blood Vessel (Efferent Arteriole) -->
+                            <path d="M 132 60 L 240 40" stroke="#ef4444" stroke-width="7" stroke-linecap="round"/>
+
+                            <!-- Bowman's Capsule & Renal Tubule Loop (Henle's Loop) -->
+                            <path d="M 105 40 C 70 40 70 115 110 115 L 145 115 L 145 235 C 145 255 185 255 185 235 L 185 115 L 250 115 L 250 250"
+                                  fill="none" stroke="#334155" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+
+                            <!-- Animated Filtrate / Urine Flow inside Tubule -->
+                            <path id="flow-filtrate" d="M 110 115 L 145 115 L 145 235 C 145 255 185 255 185 235 L 185 115 L 250 115 L 250 250"
+                                  fill="none" stroke="#facc15" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="animate-flow-waste"/>
+
+                            <!-- Reabsorption Arrows (Water & Glucose back to blood) -->
+                            <path d="M 145 155 L 210 75" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4 4"/>
+                            <circle cx="178" cy="115" r="4" fill="#38bdf8"/>
+
+                            <!-- Labels -->
+                            <text x="15" y="48" font-size="10" fill="#fca5a5" font-weight="600">Blut / Blood</text>
+                            <text x="72" y="28" font-size="10" fill="#ffffff" font-weight="700">Glomerulus</text>
+                            <text x="95" y="268" font-size="10" fill="#94a3b8" font-weight="600">Henle-Schleife / Loop</text>
+                            <text x="265" y="180" font-size="10" fill="#facc15" font-weight="700">Sammelrohr /</text>
+                            <text x="265" y="193" font-size="10" fill="#facc15" font-weight="700">Collecting Duct</text>
+                            <text x="200" y="95" font-size="9" fill="#38bdf8" font-weight="600">Rückresorption (H₂O)</text>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 3-Step Nephron Process Legend -->
+                <div class="grid grid-cols-3 gap-2.5 text-xs">
+                    <div class="bg-rose-50 border border-rose-100 rounded-xl p-3">
+                        <span class="font-bold text-rose-700 block mb-1" data-i18n="step1_title">1. Filtration</span>
+                        <span class="text-slate-600" data-i18n="step1_desc">Blutdruck presst Wasser & Abfallstoffe ins Nephron.</span>
+                    </div>
+                    <div class="bg-sky-50 border border-sky-100 rounded-xl p-3">
+                        <span class="font-bold text-sky-700 block mb-1" data-i18n="step2_title">2. Rückresorption</span>
+                        <span class="text-slate-600" data-i18n="step2_desc">99% des Wassers, Glukose & Salze kehren ins Blut zurück.</span>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                        <span class="font-bold text-amber-700 block mb-1" data-i18n="step3_title">3. Ausscheidung</span>
+                        <span class="text-slate-600" data-i18n="step3_desc">Konzentrierter Urin fließt über das Nierenbecken ab.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- All 8 Functions Complete Grid Section -->
+    <section id="functions" class="py-16 sm:py-24 bg-white/70 border-y border-cyan-900/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-mono-med font-bold text-xs uppercase tracking-widest" data-i18n="func_tag">Klinische Systematik</span>
+                    <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-3" data-i18n="func_title">Alle 8 Hauptfunktionen der Nieren</h2>
+                </div>
+                <!-- Category Filter Pills -->
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="filterFunctions('all')" class="func-filter-btn active px-4 py-2 rounded-full text-xs font-bold bg-cyan-800 text-white transition-all" data-filter="all" data-i18n="filter_all">Alle (8)</button>
+                    <button onclick="filterFunctions('balance')" class="func-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all" data-filter="balance" data-i18n="filter_balance">Filtration & Balance</button>
+                    <button onclick="filterFunctions('hormones')" class="func-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all" data-filter="hormones" data-i18n="filter_hormones">Hormone & Stoffwechsel</button>
+                </div>
+            </div>
+
+            <!-- Cards Container (Populated by JS for clean bilingual support) -->
+            <div id="functions-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Cards injected dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Hydration & Hormone Telemetry Simulator -->
+    <section id="simulator" class="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 rounded-3xl p-6 sm:p-10 lg:p-12 text-white shadow-xl border border-cyan-500/20">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div class="lg:col-span-6 space-y-6">
+                    <span class="inline-block px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 font-mono-med text-xs font-bold uppercase tracking-wider" data-i18n="sim_tag">
+                        Klinische Telemetrie-Simulation
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold" data-i18n="sim_title">
+                        Wie reagieren deine Nieren auf Wasser & Salz?
+                    </h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed" data-i18n="sim_desc">
+                        Verändere deine tägliche Wasseraufnahme und deinen Salzkonsum, um live zu sehen, wie Nieren, GFR-Rate, Blutdruck-Enzyme (Renin) und die Urinkonzentration darauf reagieren.
+                    </p>
+
+                    <!-- Water Slider -->
+                    <div class="bg-white/5 border border-cyan-500/20 rounded-2xl p-5 space-y-3">
+                        <div class="flex justify-between text-sm font-semibold">
+                            <span data-i18n="sim_water_label">💧 Tägliche Wasseraufnahme</span>
+                            <span id="water-val" class="text-cyan-400 font-mono-med font-bold">2.0 Liter</span>
+                        </div>
+                        <input type="range" id="water-slider" min="0.5" max="4.5" step="0.5" value="2.0" oninput="updateSimulator()" class="w-full">
+                        <div class="flex justify-between text-xs text-slate-400 font-mono-med">
+                            <span>0.5 L</span>
+                            <span>2.0 L</span>
+                            <span>4.5 L</span>
+                        </div>
+                    </div>
+
+                    <!-- Salt Slider -->
+                    <div class="bg-white/5 border border-cyan-500/20 rounded-2xl p-5 space-y-3">
+                        <div class="flex justify-between text-sm font-semibold">
+                            <span data-i18n="sim_salt_label">🧂 Salzkonsum (Natrium)</span>
+                            <span id="salt-val" class="text-amber-400 font-mono-med font-bold">5 g</span>
+                        </div>
+                        <input type="range" id="salt-slider" min="1" max="15" step="1" value="5" oninput="updateSimulator()" class="w-full">
+                        <div class="flex justify-between text-xs text-slate-400 font-mono-med">
+                            <span>1 g</span>
+                            <span>5 g (WHO)</span>
+                            <span>15 g</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Physiological Readout Panel -->
+                <div class="lg:col-span-6 bg-slate-900/80 backdrop-blur-md border border-cyan-500/30 rounded-3xl p-6 sm:p-8 space-y-5">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="font-bold text-lg" data-i18n="sim_output_title">Live-Monitor: Nierenphysiologie</h3>
+                        <span class="text-xs font-mono-med text-emerald-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> LIVE
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-slate-950/70 rounded-2xl p-4 border border-white/10">
+                            <div class="text-[11px] font-mono-med text-slate-400 mb-1" data-i18n="sim_urine_color">URIN-KONZENTRATION</div>
+                            <div class="flex items-center gap-2.5 mt-2">
+                                <div id="urine-swatch" class="w-7 h-7 rounded-full border-2 border-white shadow-inner shrink-0 transition-colors duration-300" style="background-color: #fef08a;"></div>
+                                <span id="urine-status" class="font-bold text-xs text-white">Hellgelb (Optimal)</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/70 rounded-2xl p-4 border border-white/10">
+                            <div class="text-[11px] font-mono-med text-slate-400 mb-1" data-i18n="sim_renin_label">RENIN / ADH</div>
+                            <div id="renin-status" class="font-bold text-xs text-cyan-300 mt-2">Ausgeglichen (Normal)</div>
+                        </div>
+
+                        <div class="bg-slate-950/70 rounded-2xl p-4 border border-white/10">
+                            <div class="text-[11px] font-mono-med text-slate-400 mb-1" data-i18n="sim_gfr_label">EST. eGFR / OSMOLARITÄT</div>
+                            <div id="gfr-status" class="font-bold font-mono-med text-xs text-emerald-300 mt-2">105 mL/min • 520 mOsm</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950/70 rounded-2xl p-4 border border-white/10">
+                        <div class="text-xs font-mono-med text-cyan-400 mb-1" data-i18n="sim_explanation_label">KLINISCHE BEWERTUNG:</div>
+                        <p id="sim-explanation" class="text-sm text-slate-200 leading-relaxed">
+                            Deine Flüssigkeits- und Elektrolytbilanz ist im Gleichgewicht. Die Nephrone scheiden genau so viel Wasser und Natrium aus, wie aufgenommen wurde.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Educational Video & Resources Section -->
+    <section id="videos" class="py-16 sm:py-24 bg-white/70 border-t border-cyan-900/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="inline-block px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-mono-med font-bold text-xs uppercase tracking-widest" data-i18n="vid_tag">Multimediales Lernen</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 mt-3 mb-4" data-i18n="vid_title">Erklärvideos & Weiterführende Links</h2>
+                <p class="text-slate-600 text-sm sm:text-base" data-i18n="vid_desc">
+                    Sieh dir anschauliche Animationen darüber an, wie deine Nieren Blut filtern und deinen gesamten Körper im Gleichgewicht halten.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Embedded TED-Ed Video Player -->
+                <div class="lg:col-span-7 bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200">
+                    <div class="aspect-video w-full bg-slate-900">
+                        <iframe class="w-full h-full"
+                                src="https://www.youtube.com/embed/FN3MFhYPWWo"
+                                title="How do your kidneys work? - Emma Bryce (TED-Ed)"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen>
+                        </iframe>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center gap-2 text-xs font-bold text-rose-600 uppercase mb-1">
+                            <span>TED-Ed Animation</span> • <span>EN / DE Untertitel verfügbar</span>
+                        </div>
+                        <h3 class="font-bold text-lg text-slate-900 mb-2">How do your kidneys work? – Emma Bryce</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed" data-i18n="vid_embed_desc">
+                            Dieses preisgekrönte Animationsvideo erklärt anschaulich, wie die zwei bohnenförmigen Organe Tag für Tag Giftstoffe herausfiltern, den Wasserhaushalt steuern und mithilfe von Millionen Nephronen den Blutdruck regulieren.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Curated Video & Study Links -->
+                <div class="lg:col-span-5 space-y-4">
+                    <h3 class="font-bold text-lg text-slate-900 mb-2" data-i18n="vid_links_title">Empfohlene Lern-Ressourcen & Videos</h3>
+
+                    <a href="https://www.youtube.com/results?search_query=Niere+Aufbau+und+Funktion+Simpleclub+Biologie" target="_blank" rel="noopener noreferrer"
+                       class="block bg-white hover:bg-teal-50/50 border border-slate-200 hover:border-teal-300 rounded-2xl p-5 transition-all group">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <span class="text-xs font-bold text-teal-600 uppercase">YouTube • Deutsch</span>
+                                <h4 class="font-bold text-slate-900 group-hover:text-teal-700 mt-1">Niere: Aufbau, Nephron & Harnbildung</h4>
+                                <p class="text-xs text-slate-600 mt-1">Kompakte Biologie-Erklärvideos auf Deutsch zu Glomerulus, Henle-Schleife und Gegenstromprinzip.</p>
+                            </div>
+                            <span class="text-slate-400 group-hover:text-teal-600 text-lg">↗</span>
+                        </div>
+                    </a>
+
+                    <a href="https://www.youtube.com/results?search_query=Renin+Angiotensin+Aldosteron+System+einfach+erklaert" target="_blank" rel="noopener noreferrer"
+                       class="block bg-white hover:bg-teal-50/50 border border-slate-200 hover:border-teal-300 rounded-2xl p-5 transition-all group">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <span class="text-xs font-bold text-rose-600 uppercase">YouTube • Physiologie</span>
+                                <h4 class="font-bold text-slate-900 group-hover:text-teal-700 mt-1">Blutdruckregulation: Das RAAS-System</h4>
+                                <p class="text-xs text-slate-600 mt-1">Wie das Enzym Renin aus der Niere den Blutdruck über Angiotensin und Aldosteron steuert.</p>
+                            </div>
+                            <span class="text-slate-400 group-hover:text-teal-600 text-lg">↗</span>
+                        </div>
+                    </a>
+
+                    <a href="https://www.gesundheitsinformation.de/wie-funktionieren-die-nieren.html" target="_blank" rel="noopener noreferrer"
+                       class="block bg-white hover:bg-teal-50/50 border border-slate-200 hover:border-teal-300 rounded-2xl p-5 transition-all group">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <span class="text-xs font-bold text-sky-600 uppercase">Medizin-Portal • IQWiG</span>
+                                <h4 class="font-bold text-slate-900 group-hover:text-teal-700 mt-1">Gesundheitsinformation.de: Wie funktionieren die Nieren?</h4>
+                                <p class="text-xs text-slate-600 mt-1">Evidenzbasierte medizinische Informationen über Nierenfunktionen, Hormone und Vorsorge.</p>
+                            </div>
+                            <span class="text-slate-400 group-hover:text-teal-600 text-lg">↗</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Knowledge Quiz Section -->
+    <section id="quiz" class="py-16 sm:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-sm border border-cyan-900/15 p-6 sm:p-10">
+            <div class="text-center mb-8">
+                <span class="inline-block px-3 py-1 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-800 font-mono-med font-bold text-xs uppercase tracking-widest" data-i18n="quiz_tag">Klinischer Selbsttest (5 Fragen)</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3" data-i18n="quiz_title">Teste dein Wissen über die Nieren</h2>
+            </div>
+
+            <div id="quiz-container" class="space-y-6">
+                <!-- Quiz questions populated via JS -->
+            </div>
+
+            <div id="quiz-result" class="hidden mt-8 p-6 rounded-2xl bg-cyan-50 border border-cyan-200 text-center">
+                <p id="quiz-score-text" class="text-lg font-extrabold text-cyan-950"></p>
+                <button onclick="resetQuiz()" class="mt-4 px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-sm font-bold transition-colors" data-i18n="quiz_retry">
+                    Quiz neu starten
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Clinical Footer with Jade Attribution -->
+    <footer class="bg-slate-950 text-slate-400 py-10 border-t border-cyan-900/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div class="flex items-center gap-3">
+                <span class="text-white font-bold text-sm">Renal<span class="text-cyan-400">Atlas</span></span>
+                <span class="px-2.5 py-1 rounded-md bg-cyan-950 border border-cyan-700/50 text-cyan-300 font-semibold" data-i18n="presented_by_footer">
+                    Präsentiert von Jade
+                </span>
+            </div>
+            <p data-i18n="footer_note">Klinische Bildungsressource zur menschlichen Nierenphysiologie • Deutsch & English</p>
+        </div>
+    </footer>
+
+    <!-- Application Logic & Bilingual Content -->
+    <script>
+        let currentLang = 'de';
+        let currentFilter = 'all';
+        let currentAnatomyPart = 'cortex';
+        let flowPlaying = true;
+
+        // UI Translations
+        const i18n = {
+            de: {
+                presented_by: "Präsentiert von Jade",
+                presented_by_hero: "Präsentiert von Jade",
+                presented_by_footer: "Präsentiert von Jade",
+                nav_anatomy: "Anatomie & Nephron",
+                nav_functions: "Alle 8 Funktionen",
+                nav_simulator: "Klinisches Labor",
+                nav_videos: "Videos",
+                nav_quiz: "Medizin-Quiz",
+                hero_badge: "Klinische Nephrologie & Physiologie",
+                hero_title: "Die Nieren: Das Meisterwerk der inneren Balance",
+                hero_subtitle: "Weit mehr als nur ein Filter: Entdecke alle 8 lebenswichtigen Funktionen der menschlichen Nieren – von der Blutreinigung und Blutdruckkontrolle bis hin zur Hormonproduktion und Zuckerneubildung.",
+                hero_cta_primary: "Alle 8 Funktionen entdecken",
+                hero_cta_secondary: "Interaktive Anatomie starten",
+                stat_1: "Gefiltertes Blut pro Tag",
+                stat_2: "Nephrone (Filtereinheiten) insgesamt",
+                stat_3: "Ausgeschiedener Urin täglich",
+                stat_4: "Konstant gehaltener Blut-pH-Wert",
+                anat_tag: "Struktur & Mikroskopie",
+                anat_title: "Interaktive Nieren-Anatomie & Nephron-Simulator",
+                anat_desc: "Klicke auf die verschiedenen Bereiche der Niere, um ihren Aufbau zu untersuchen, oder steuere den Blutfluss im mikroskopischen Nephron.",
+                macro_title: "1. Klinischer Querschnitt der Niere",
+                click_hint: "Bereich anklicken",
+                nephron_title: "2. Das Nephron: So entsteht Urin",
+                step1_title: "1. Filtration",
+                step1_desc: "Blutdruck presst Wasser & Abfallstoffe ins Nephron.",
+                step2_title: "2. Rückresorption",
+                step2_desc: "99% des Wassers, Glukose & Salze kehren ins Blut zurück.",
+                step3_title: "3. Ausscheidung",
+                step3_desc: "Konzentrierter Urin fließt über das Nierenbecken ab.",
+                func_tag: "Klinische Systematik",
+                func_title: "Alle 8 Hauptfunktionen der Nieren",
+                filter_all: "Alle (8)",
+                filter_balance: "Filtration & Balance",
+                filter_hormones: "Hormone & Stoffwechsel",
+                sim_tag: "Klinische Telemetrie-Simulation",
+                sim_title: "Wie reagieren deine Nieren auf Wasser & Salz?",
+                sim_desc: "Verändere deine tägliche Wasseraufnahme und deinen Salzkonsum, um live zu sehen, wie Nieren, GFR-Rate, Blutdruck-Enzyme (Renin) und die Urinkonzentration darauf reagieren.",
+                sim_water_label: "💧 Tägliche Wasseraufnahme",
+                sim_salt_label: "🧂 Salzkonsum (Natrium)",
+                sim_output_title: "Live-Monitor: Nierenphysiologie",
+                sim_urine_color: "URIN-KONZENTRATION",
+                sim_renin_label: "RENIN / ADH",
+                sim_gfr_label: "EST. eGFR / OSMOLARITÄT",
+                sim_explanation_label: "KLINISCHE BEWERTUNG:",
+                vid_tag: "Multimediales Lernen",
+                vid_title: "Erklärvideos & Weiterführende Links",
+                vid_desc: "Sieh dir anschauliche Animationen darüber an, wie deine Nieren Blut filtern und deinen gesamten Körper im Gleichgewicht halten.",
+                vid_embed_desc: "Dieses preisgekrönte Animationsvideo erklärt anschaulich, wie die zwei bohnenförmigen Organe Tag für Tag Giftstoffe herausfiltern, den Wasserhaushalt steuern und mithilfe von Millionen Nephronen den Blutdruck regulieren.",
+                vid_links_title: "Empfohlene Lern-Ressourcen & Videos",
+                quiz_tag: "Klinischer Selbsttest (5 Fragen)",
+                quiz_title: "Teste dein Wissen über die Nieren",
+                quiz_retry: "Quiz neu starten",
+                footer_note: "Klinische Bildungsressource zur menschlichen Nierenphysiologie • Deutsch & English"
+            },
+            en: {
+                presented_by: "Presented by Jade",
+                presented_by_hero: "Presented by Jade",
+                presented_by_footer: "Presented by Jade",
+                nav_anatomy: "Anatomy & Nephron",
+                nav_functions: "All 8 Functions",
+                nav_simulator: "Clinical Lab",
+                nav_videos: "Videos",
+                nav_quiz: "Medical Quiz",
+                hero_badge: "Clinical Nephrology & Physiology",
+                hero_title: "The Kidneys: Masterpiece of Internal Balance",
+                hero_subtitle: "Far more than just a filter: Explore all 8 vital functions of the human kidneys—from blood purification and blood pressure control to hormone production and gluconeogenesis.",
+                hero_cta_primary: "Explore All 8 Functions",
+                hero_cta_secondary: "Start Interactive Anatomy",
+                stat_1: "Blood filtered per day",
+                stat_2: "Total nephrons (filtering units)",
+                stat_3: "Daily urine output",
+                stat_4: "Maintained blood pH level",
+                anat_tag: "Structure & Microscopy",
+                anat_title: "Interactive Kidney Anatomy & Nephron Simulator",
+                anat_desc: "Click on different regions of the kidney to inspect its structure, or control the blood flow inside a microscopic nephron.",
+                macro_title: "1. Clinical Kidney Cross-Section",
+                click_hint: "Click a region",
+                nephron_title: "2. The Nephron: How Urine is Made",
+                step1_title: "1. Filtration",
+                step1_desc: "Blood pressure pushes water & waste into the nephron.",
+                step2_title: "2. Reabsorption",
+                step2_desc: "99% of water, glucose & salts return to the bloodstream.",
+                step3_title: "3. Excretion",
+                step3_desc: "Concentrated urine drains into the renal pelvis.",
+                func_tag: "Clinical Systematics",
+                func_title: "All 8 Core Functions of the Kidneys",
+                filter_all: "All (8)",
+                filter_balance: "Filtration & Balance",
+                filter_hormones: "Hormones & Metabolism",
+                sim_tag: "Clinical Telemetry Simulation",
+                sim_title: "How Do Your Kidneys React to Water & Salt?",
+                sim_desc: "Adjust your daily water intake and salt consumption to see live how your kidneys, eGFR rate, blood pressure enzymes (renin), and urine concentration respond.",
+                sim_water_label: "💧 Daily Water Intake",
+                sim_salt_label: "🧂 Salt Intake (Sodium)",
+                sim_output_title: "Live Monitor: Renal Physiology",
+                sim_urine_color: "URINE CONCENTRATION",
+                sim_renin_label: "RENIN / ADH",
+                sim_gfr_label: "EST. eGFR / OSMOLARITY",
+                sim_explanation_label: "CLINICAL ASSESSMENT:",
+                vid_tag: "Multimedia Learning",
+                vid_title: "Educational Videos & Further Links",
+                vid_desc: "Watch clear animations explaining how your kidneys filter blood and keep your entire body in chemical balance.",
+                vid_embed_desc: "This award-winning animated video explains how these two bean-shaped organs filter out toxins day after day, regulate fluid levels, and control blood pressure using millions of nephrons.",
+                vid_links_title: "Recommended Study Resources & Videos",
+                quiz_tag: "Clinical Self-Test (5 Questions)",
+                quiz_title: "Test Your Kidney Knowledge",
+                quiz_retry: "Restart Quiz",
+                footer_note: "Clinical Educational Resource on Human Renal Physiology • Deutsch & English"
+            }
+        };
+
+        // Anatomy Data
+        const anatomyData = {
+            cortex: {
+                color: "#e11d48",
+                de: {
+                    title: "Nierenrinde (Cortex renalis)",
+                    desc: "Die äußere Schicht der Niere. Hier befinden sich die meisten Nierenkörperchen (Glomeruli), in denen das Blut zuerst gefiltert wird und der Primärharn entsteht."
+                },
+                en: {
+                    title: "Renal Cortex (Cortex renalis)",
+                    desc: "The outer layer of the kidney. It houses most of the renal corpuscles (glomeruli), where blood is initially filtered to form primary filtrate."
+                }
+            },
+            medulla: {
+                color: "#9f1239",
+                de: {
+                    title: "Nierenmark (Medulla renalis)",
+                    desc: "Besteht aus kegelförmigen Nierenpyramiden. Hier verlaufen die Henle-Schleifen und Sammelrohre, die dem Primärharn Wasser entziehen und den Urin konzentrieren."
+                },
+                en: {
+                    title: "Renal Medulla (Medulla renalis)",
+                    desc: "Composed of cone-shaped renal pyramids. It contains the Loops of Henle and collecting ducts that reabsorb water and concentrate the urine."
+                }
+            },
+            pelvis: {
+                color: "#eab308",
+                de: {
+                    title: "Nierenbecken (Pelvis renalis)",
+                    desc: "Ein trichterförmiger Hohlraum, der den fertigen Urin aus allen Sammelrohren auffängt und direkt in den Harnleiter weiterleitet."
+                },
+                en: {
+                    title: "Renal Pelvis (Pelvis renalis)",
+                    desc: "A funnel-shaped cavity that collects finished urine from all collecting ducts and channels it directly into the ureter."
+                }
+            },
+            artery: {
+                color: "#dc2626",
+                de: {
+                    title: "Nierenarterie (Arteria renalis)",
+                    desc: "Führt sauerstoffreiches, aber noch ungefiltertes Blut mit hohem Druck direkt aus der Hauptschlagader (Aorta) in die Niere."
+                },
+                en: {
+                    title: "Renal Artery (Arteria renalis)",
+                    desc: "Carries oxygen-rich, unfiltered blood at high pressure directly from the aorta into the kidney."
+                }
+            },
+            vein: {
+                color: "#2563eb",
+                de: {
+                    title: "Nierenvene (Vena renalis)",
+                    desc: "Leitet das gereinigte, von Abfallstoffen befreite Blut zurück in den großen Blutkreislauf Richtung Herz."
+                },
+                en: {
+                    title: "Renal Vein (Vena renalis)",
+                    desc: "Returns the cleansed, filtered blood back into systemic circulation toward the heart."
+                }
+            },
+            ureter: {
+                color: "#ca8a04",
+                de: {
+                    title: "Harnleiter (Ureter)",
+                    desc: "Ein dünner Muskelschlauch, der den Urin durch wellenförmige Bewegungen vom Nierenbecken hinab in die Harnblase transportiert."
+                },
+                en: {
+                    title: "Ureter",
+                    desc: "A thin muscular tube that transports urine via peristaltic waves from the renal pelvis down into the urinary bladder."
+                }
+            }
+        };
+
+        // All 8 Functions Data
+        const functionsData = [
+            {
+                num: "01",
+                category: "balance",
+                icon: "🧪",
+                accent: "teal",
+                de: {
+                    title: "Filtration von Abfallstoffen",
+                    desc: "Täglich werden 120–150 Liter Blut gefiltert, um Harnstoff, Kreatinin, Harnsäure und überschüssiges Wasser über den Urin auszuscheiden."
+                },
+                en: {
+                    title: "Waste & Toxin Filtration",
+                    desc: "Filters 120–150 liters of blood daily to remove metabolic waste like urea, creatinine, and uric acid via urine."
+                }
+            },
+            {
+                num: "02",
+                category: "balance",
+                icon: "💧",
+                accent: "sky",
+                de: {
+                    title: "Wasser- & Elektrolythaushalt",
+                    desc: "Steuert präzise den Wassergehalt sowie lebenswichtige Mineralstoffe wie Natrium, Kalium und Chlorid im Blut."
+                },
+                en: {
+                    title: "Fluid & Electrolyte Balance",
+                    desc: "Precisely regulates body water volume and essential minerals (electrolytes) such as sodium, potassium, and chloride."
+                }
+            },
+            {
+                num: "03",
+                category: "balance",
+                icon: "❤️",
+                accent: "rose",
+                de: {
+                    title: "Blutdruckregulation (Renin)",
+                    desc: "Schüttet bei niedrigem Blutdruck das Enzym Renin aus, das Gefäße verengt und den Salz- und Wasserhaushalt anpasst."
+                },
+                en: {
+                    title: "Blood Pressure Regulation",
+                    desc: "Produces the enzyme renin when blood pressure drops, triggering hormonal pathways to constrict vessels and retain sodium."
+                }
+            },
+            {
+                num: "04",
+                category: "balance",
+                icon: "⚖️",
+                accent: "indigo",
+                de: {
+                    title: "Säure-Basen-Haushalt (pH)",
+                    desc: "Hält den Blut-pH-Wert konstant bei 7,35–7,45, indem überschüssige Wasserstoff-Ionen ausgeschieden und Bikarbonat zurückgehalten wird."
+                },
+                en: {
+                    title: "Acid-Base (pH) Balance",
+                    desc: "Keeps blood pH tightly between 7.35 and 7.45 by excreting excess hydrogen ions and reabsorbing bicarbonate."
+                }
+            },
+            {
+                num: "05",
+                category: "hormones",
+                icon: "🩸",
+                accent: "red",
+                de: {
+                    title: "Hormonproduktion (EPO)",
+                    desc: "Bildet Erythropoietin (EPO), welches das Knochenmark anregt, neue sauerstofftransportierende rote Blutkörperchen zu produzieren."
+                },
+                en: {
+                    title: "Hormone Production (EPO)",
+                    desc: "Produces erythropoietin (EPO), signaling bone marrow to produce oxygen-carrying red blood cells and prevent anemia."
+                }
+            },
+            {
+                num: "06",
+                category: "hormones",
+                icon: "🦴",
+                accent: "amber",
+                de: {
+                    title: "Calcium- & Phosphathaushalt",
+                    desc: "Aktiviert Vitamin D zu Calcitriol und steuert die Phosphatausscheidung – essenziell für stabile Knochen und Zähne."
+                },
+                en: {
+                    title: "Calcium & Phosphate Balance",
+                    desc: "Converts vitamin D into active calcitriol and regulates phosphate excretion to maintain strong, healthy bones."
+                }
+            },
+            {
+                num: "07",
+                category: "hormones",
+                icon: "🛡️",
+                accent: "emerald",
+                de: {
+                    title: "Stoffwechsel & Entgiftung",
+                    desc: "Baut körpereigene Hormone (z. B. Insulin) sowie Medikamente und wasserlösliche Umweltgifte ab und scheidet sie aus."
+                },
+                en: {
+                    title: "Metabolic Detoxification",
+                    desc: "Breaks down and clears endogenous hormones (such as insulin), medications, and water-soluble toxins from the body."
+                }
+            },
+            {
+                num: "08",
+                category: "hormones",
+                icon: "⚡",
+                accent: "violet",
+                de: {
+                    title: "Glukoneogenese (Zuckerneubildung)",
+                    desc: "Kann bei längerem Fasten oder Energiemangel aus Aminosäuren neue Glukose herstellen, um Gehirn und Organe zu versorgen."
+                },
+                en: {
+                    title: "Gluconeogenesis (Glucose Synthesis)",
+                    desc: "Synthesizes new glucose from amino acids during prolonged fasting to keep blood sugar stable for the brain and vital organs."
+                }
+            }
+        ];
+
+        // Quiz Questions Data (5 Clinical Questions)
+        const quizData = [
+            {
+                de: {
+                    q: "1. Wie viel Blut filtern gesunde Nieren ungefähr pro Tag?",
+                    options: ["15 bis 20 Liter", "120 bis 150 Liter", "500 Liter"],
+                    correct: 1
+                },
+                en: {
+                    q: "1. Approximately how much blood do healthy kidneys filter each day?",
+                    options: ["15 to 20 liters", "120 to 150 liters", "500 liters"],
+                    correct: 1
+                }
+            },
+            {
+                de: {
+                    q: "2. Welches Hormon der Niere regt die Bildung roter Blutkörperchen an?",
+                    options: ["Renin", "Insulin", "Erythropoietin (EPO)"],
+                    correct: 2
+                },
+                en: {
+                    q: "2. Which kidney hormone stimulates the production of red blood cells?",
+                    options: ["Renin", "Insulin", "Erythropoietin (EPO)"],
+                    correct: 2
+                }
+            },
+            {
+                de: {
+                    q: "3. Wie heißen die mikroskopisch kleinen Filtereinheiten in der Niere?",
+                    options: ["Alveolen", "Nephrone", "Neuronen"],
+                    correct: 1
+                },
+                en: {
+                    q: "3. What are the microscopic filtering units inside the kidneys called?",
+                    options: ["Alveoli", "Nephrons", "Neurons"],
+                    correct: 1
+                }
+            },
+            {
+                de: {
+                    q: "4. Welche aktive Vitamin-Form wird in der Niere für gesunde Knochen gebildet?",
+                    options: ["Calcitriol (aktives Vitamin D)", "Vitamin B12", "Ascorbinsäure (Vitamin C)"],
+                    correct: 0
+                },
+                en: {
+                    q: "4. Which active vitamin form is synthesized in the kidneys for bone health?",
+                    options: ["Calcitriol (Active Vitamin D)", "Vitamin B12", "Ascorbic Acid (Vitamin C)"],
+                    correct: 0
+                }
+            },
+            {
+                de: {
+                    q: "5. Was bedeutet Glukoneogenese in den Nieren?",
+                    options: ["Abbau von roten Blutkörperchen", "Neubildung von Glukose aus Aminosäuren beim Fasten", "Ausscheidung von Kalium"],
+                    correct: 1
+                },
+                en: {
+                    q: "5. What is renal gluconeogenesis?",
+                    options: ["Breakdown of red blood cells", "Synthesizing new glucose from amino acids during fasting", "Excretion of potassium"],
+                    correct: 1
+                }
+            }
+        ];
+
+        let userAnswers = {};
+
+        // Language Switcher
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+
+            // Update toggle buttons
+            const btnDe = document.getElementById('btn-de');
+            const btnEn = document.getElementById('btn-en');
+            if (lang === 'de') {
+                btnDe.className = "px-3 py-1 rounded-full text-xs font-bold transition-all bg-cyan-700 text-white shadow-sm";
+                btnEn.className = "px-3 py-1 rounded-full text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+            } else {
+                btnEn.className = "px-3 py-1 rounded-full text-xs font-bold transition-all bg-cyan-700 text-white shadow-sm";
+                btnDe.className = "px-3 py-1 rounded-full text-xs font-bold transition-all text-slate-600 hover:text-slate-900";
+            }
+
+            // Update static text elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[lang][key]) {
+                    el.textContent = i18n[lang][key];
+                }
+            });
+
+            // Re-render dynamic sections
+            selectAnatomy(currentAnatomyPart);
+            renderFunctions();
+            updateSimulator();
+            renderQuiz();
+        }
+
+        // Select Anatomy Part
+        function selectAnatomy(partKey) {
+            currentAnatomyPart = partKey;
+            document.querySelectorAll('.anatomy-part').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById(`part-${partKey}`);
+            if (activeEl) activeEl.classList.add('active');
+
+            const data = anatomyData[partKey];
+            document.getElementById('anat-badge').style.backgroundColor = data.color;
+            document.getElementById('anat-part-title').textContent = data[currentLang].title;
+            document.getElementById('anat-part-desc').textContent = data[currentLang].desc;
+        }
+
+        // Toggle Nephron Animation
+        function toggleNephronFlow() {
+            flowPlaying = !flowPlaying;
+            const btn = document.getElementById('toggle-flow-btn');
+            const blood = document.getElementById('flow-blood-in');
+            const filtrate = document.getElementById('flow-filtrate');
+
+            if (flowPlaying) {
+                blood.style.animationPlayState = 'running';
+                filtrate.style.animationPlayState = 'running';
+                btn.textContent = currentLang === 'de' ? '⏸ Pause' : '⏸ Pause';
+            } else {
+                blood.style.animationPlayState = 'paused';
+                filtrate.style.animationPlayState = 'paused';
+                btn.textContent = currentLang === 'de' ? '▶ Start' : '▶ Play';
+            }
+        }
+
+        // Render Functions Cards
+        function filterFunctions(category) {
+            currentFilter = category;
+            document.querySelectorAll('.func-filter-btn').forEach(btn => {
+                if (btn.getAttribute('data-filter') === category) {
+                    btn.className = "func-filter-btn active px-4 py-2 rounded-full text-xs font-bold bg-cyan-800 text-white transition-all";
+                } else {
+                    btn.className = "func-filter-btn px-4 py-2 rounded-full text-xs font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all";
+                }
+            });
+            renderFunctions();
+        }
+
+        function renderFunctions() {
+            const grid = document.getElementById('functions-grid');
+            grid.innerHTML = '';
+
+            const filtered = currentFilter === 'all'
+                ? functionsData
+                : functionsData.filter(f => f.category === currentFilter);
+
+            filtered.forEach(item => {
+                const content = item[currentLang];
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl p-6 border border-cyan-900/15 shadow-sm hover:shadow-md hover:border-cyan-500/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="w-11 h-11 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-center text-xl">${item.icon}</span>
+                            <span class="text-xs font-mono-med font-extrabold text-cyan-700/50 tracking-wider">FN-${item.num}</span>
+                        </div>
+                        <h3 class="font-bold text-base text-slate-900 mb-2">${content.title}</h3>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${content.desc}</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Hydration & Salt Simulator
+        function updateSimulator() {
+            const water = parseFloat(document.getElementById('water-slider').value);
+            const salt = parseInt(document.getElementById('salt-slider').value);
+
+            document.getElementById('water-val').textContent = currentLang === 'de' ? `${water.toFixed(1)} Liter` : `${water.toFixed(1)} Liters`;
+            document.getElementById('salt-val').textContent = currentLang === 'de' ? `${salt} g` : `${salt} g`;
+
+            const swatch = document.getElementById('urine-swatch');
+            const urineStatus = document.getElementById('urine-status');
+            const reninStatus = document.getElementById('renin-status');
+            const gfrStatus = document.getElementById('gfr-status');
+            const explanation = document.getElementById('sim-explanation');
+
+            if (water < 1.5) {
+                swatch.style.backgroundColor = '#d97706'; // Dark amber
+                urineStatus.textContent = currentLang === 'de' ? 'Dunkelgelb (Konzentriert)' : 'Dark Amber (Concentrated)';
+                reninStatus.textContent = currentLang === 'de' ? 'Hoch (Wassersparmodus)' : 'High (Water Conservation)';
+                gfrStatus.textContent = '88 mL/min • 980 mOsm';
+                explanation.textContent = currentLang === 'de'
+                    ? 'Bei Wassermangel schüttet der Körper ADH und Renin aus. Die Sammelrohre der Niere holen fast alles Wasser zurück – der Urin wird stark konzentriert.'
+                    : 'During dehydration, the body releases ADH and renin. Kidney collecting ducts reabsorb almost all water, resulting in dark, concentrated urine.';
+            } else if (water > 3.0 && salt <= 6) {
+                swatch.style.backgroundColor = '#fef9c3'; // Very pale yellow
+                urineStatus.textContent = currentLang === 'de' ? 'Sehr hell (Stark verdünnt)' : 'Very Pale (Diluted)';
+                reninStatus.textContent = currentLang === 'de' ? 'Niedrig (Ausscheidung aktiv)' : 'Low (Active Excretion)';
+                gfrStatus.textContent = '118 mL/min • 180 mOsm';
+                explanation.textContent = currentLang === 'de'
+                    ? 'Bei hoher Wasseraufnahme drosseln die Nieren die Rückresorption und scheiden überschüssiges Wasser rasch als hellen, verdünnten Urin aus.'
+                    : 'With high water intake, the kidneys reduce water reabsorption and rapidly excrete excess fluid as pale, diluted urine.';
+            } else if (salt > 8) {
+                swatch.style.backgroundColor = '#facc15';
+                urineStatus.textContent = currentLang === 'de' ? 'Gelb (Hohe Salzlast)' : 'Yellow (High Sodium Load)';
+                reninStatus.textContent = currentLang === 'de' ? 'Blutvolumen steigt' : 'Blood Volume Rising';
+                gfrStatus.textContent = '112 mL/min • 760 mOsm';
+                explanation.textContent = currentLang === 'de'
+                    ? 'Viel Salz bindet Wasser im Blutkreislauf und erhöht den Blutdruck. Die Nieren müssen verstärkt Natrium über die Nephrone ausscheiden.'
+                    : 'High salt intake retains water in the bloodstream and raises blood pressure. The kidneys work harder to excrete excess sodium.';
+            } else {
+                swatch.style.backgroundColor = '#fef08a';
+                urineStatus.textContent = currentLang === 'de' ? 'Hellgelb (Optimal)' : 'Pale Yellow (Optimal)';
+                reninStatus.textContent = currentLang === 'de' ? 'Ausgeglichen (Normal)' : 'Balanced (Normal)';
+                gfrStatus.textContent = '105 mL/min • 520 mOsm';
+                explanation.textContent = currentLang === 'de'
+                    ? 'Deine Flüssigkeits- und Elektrolytbilanz ist im Gleichgewicht. Die Nephrone scheiden genau so viel Wasser und Natrium aus, wie aufgenommen wurde.'
+                    : 'Your fluid and electrolyte balance is optimal. Nephrons excrete the exact amount of water and sodium consumed.';
+            }
+        }
+
+        // Render Quiz
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizData.forEach((item, qIdx) => {
+                const qObj = item[currentLang];
+                const qBlock = document.createElement('div');
+                qBlock.className = "p-5 rounded-2xl bg-slate-50 border border-slate-200/80";
+
+                let optionsHtml = '';
+                qObj.options.forEach((opt, oIdx) => {
+                    const selected = userAnswers[qIdx] === oIdx;
+                    let btnStyle = "bg-white border-slate-200 text-slate-700 hover:border-teal-400";
+
+                    if (userAnswers[qIdx] !== undefined) {
+                        if (oIdx === qObj.correct) {
+                            btnStyle = "bg-emerald-50 border-emerald-500 text-emerald-900 font-bold";
+                        } else if (selected && oIdx !== qObj.correct) {
+                            btnStyle = "bg-rose-50 border-rose-500 text-rose-900";
+                        }
+                    }
+
+                    optionsHtml += `
+                        <button onclick="answerQuiz(${qIdx}, ${oIdx})"
+                                class="w-full text-left px-4 py-3 rounded-xl border text-sm transition-all ${btnStyle}">
+                            ${opt}
+                        </button>
+                    `;
+                });
+
+                qBlock.innerHTML = `
+                    <p class="font-bold text-slate-900 text-sm sm:text-base mb-3">${qObj.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">${optionsHtml}</div>
+                `;
+                container.appendChild(qBlock);
+            });
+
+            checkQuizCompletion();
+        }
+
+        function answerQuiz(qIdx, oIdx) {
+            userAnswers[qIdx] = oIdx;
+            renderQuiz();
+        }
+
+        function checkQuizCompletion() {
+            const resultBox = document.getElementById('quiz-result');
+            if (Object.keys(userAnswers).length === quizData.length) {
+                let score = 0;
+                quizData.forEach((item, idx) => {
+                    if (userAnswers[idx] === item[currentLang].correct) score++;
+                });
+                resultBox.classList.remove('hidden');
+                document.getElementById('quiz-score-text').textContent = currentLang === 'de'
+                    ? `Ergebnis: ${score} von ${quizData.length} Fragen richtig beantwortet!`
+                    : `Result: You answered ${score} out of ${quizData.length} questions correctly!`;
+            } else {
+                resultBox.classList.add('hidden');
+            }
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            renderQuiz();
+        }
+
+        // Initialize Page
+        window.onload = function() {
+            setLanguage('de');
+        };
+    </script>
+</body>
+</html>
